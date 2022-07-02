@@ -1,39 +1,120 @@
-# This workflow will upload a Python Package using Twine when a release is created
-# For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
-
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: Upload Python Package
+name: Build semantic_version_inator
 
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - "main"
+  workflow_dispatch:
+    inputs:
+      buildPackage:
+        description: Build Package
+        required: true
+        default: false
+        type: boolean
+      versionType:
+        description: 'Version Type'
+        required: true
+        default: 'PATCH'
+        type: choice
+        options:
+        - 'PATCH'
+        - 'MINOR'
+        - 'MAJOR'
 
-permissions:
-  contents: read
+#   release:
+#     types: [published]
+
+# permissions:
+#   contents: read
 
 jobs:
-  deploy:
 
+  build:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python
+      with:
+        path: semantic_version_inator
+    
+    - name: set vars
+      run: |
+        buildPackage="false"
+        if [ "${{ github.event.inputs.buildPackage }}" != "" ]
+        then
+          buildPackage="${{ github.event.inputs.buildPackage }}"
+        fi
+        echo "buildPackage=$buildPackage" >> $GITHUB_ENV
+
+        versionType="PATCH"
+        if [ "${{ github.event.inputs.versionType }}" != "" ]
+        then
+          versionType="${{ github.event.inputs.versionType }}"
+        fi
+        echo "versionType=$versionType" >> $GITHUB_ENV
+
+    - name: check vars
+      run: |
+        echo "buildPackage: ${{ env.buildPackage }}"
+        echo "versionType: ${{ env.versionType }}"
+
+    - name: Set up Python 3.10
       uses: actions/setup-python@v3
       with:
-        python-version: '3.x'
+        python-version: "3.10"
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install build
+        if [ -f semantic_version_inator/requirements-dev.txt ]; then pip install -r semantic_version_inator/requirements-dev.txt; fi
+
+    - name: Run pylint
+      run: |
+        pylint semantic_version_inator/semantic_version_inator --fail-under=8
+
+    - name: Run pytest
+      run: |
+        pytest semantic_version_inator --cov-report=html --cov-branch --cov=.
+
+    - name: Check coverage
+      run: |
+        coverage report --fail-under=80 --omit="setup.py,*/__init__.py,*/tests/*"
+
     - name: Build package
-      run: python -m build
-    - name: Publish package
-      uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+      if: ${{ env.buildPackage == 'true' }}
+      run: |
+        cd semantic_version_inator
+        python -m build --wheel
+        cd dist
+        pkg_name=$(ls *.whl)
+        echo "pkg_name: "$pkg_name
+        echo "pkg_name=$pkg_name" >> $GITHUB_ENV
+  
+    - name: Upload package as workflow artifact
+      if: ${{ env.buildPackage == 'true' }}
+      uses: actions/upload-artifact@v3
       with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
+        name: ${{ env.pkg_name }}
+        path: semantic_version_inator/dist/*.whl
+
+
+  # deploy:
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - name: Set up Python
+  #     uses: actions/setup-python@v3
+  #     with:
+  #       python-version: '3.x'
+  #   - name: Install dependencies
+  #     run: |
+  #       python -m pip install --upgrade pip
+  #       pip install build
+  #   - name: Build package
+  #     run: python -m build
+  #   - name: Publish package
+  #     uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+  #     with:
+  #       user: __token__
+  #       password: ${{ secrets.PYPI_API_TOKEN }}
