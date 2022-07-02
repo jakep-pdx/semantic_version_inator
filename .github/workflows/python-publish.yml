@@ -1,13 +1,13 @@
 name: Build semantic_version_inator
 
 on:
-  # push:
-  #   branches:
-  #     - "main"
+  push:
+    branches:
+      - "main"
   workflow_dispatch:
     inputs:
-      buildPackage:
-        description: Build Package
+      publishPackage:
+        description: Publish Package
         required: true
         default: false
         type: boolean
@@ -39,12 +39,12 @@ jobs:
     
     - name: set vars
       run: |
-        buildPackage="false"
-        if [ "${{ github.event.inputs.buildPackage }}" != "" ]
+        publishPackage="false"
+        if [ "${{ github.event.inputs.publishPackage }}" != "" ]
         then
-          buildPackage="${{ github.event.inputs.buildPackage }}"
+          publishPackage="${{ github.event.inputs.publishPackage }}"
         fi
-        echo "buildPackage=$buildPackage" >> $GITHUB_ENV
+        echo "publishPackage=$publishPackage" >> $GITHUB_ENV
 
         versionType="PATCH"
         if [ "${{ github.event.inputs.versionType }}" != "" ]
@@ -55,7 +55,7 @@ jobs:
 
     - name: check vars
       run: |
-        echo "buildPackage: ${{ env.buildPackage }}"
+        echo "publishPackage: ${{ env.publishPackage }}"
         echo "versionType: ${{ env.versionType }}"
 
     - name: Set up Python 3.10
@@ -80,23 +80,21 @@ jobs:
       run: |
         coverage report --fail-under=80 --omit="setup.py,*/__init__.py,*/tests/*"
 
-    # - name: Get next version
-    #   if: ${{ env.buildPackage == 'true' }}
-    #   run: |
-    #     pip download semantic_version_inator
-    #     file_name=$(ls semantic_version_inator*.whl)
-    #     if [ "$file_name" != "" ]
-    #       then
-    #       pip install $file_name
-    #       next_ver=$(get_next_ver_file_name $file_name ${{ env.versionType }})
-    #       echo "next_ver: "$next_ver
-    #       echo "next_ver=$next_ver" >> $GITHUB_ENV
-    #     else
-    #       echo "unable to get next version"
-    #     fi
+    - name: Get next version
+      run: |
+        pip download semantic_version_inator
+        file_name=$(ls semantic_version_inator*.whl)
+        if [ "$file_name" != "" ]
+          then
+          pip install $file_name
+          next_ver=$(get_next_ver_file_name $file_name ${{ env.versionType }})
+          echo "next_ver: "$next_ver
+          echo "next_ver=$next_ver" >> $GITHUB_ENV
+        else
+          echo "unable to get next version"
+        fi
 
     - name: Build package
-      if: ${{ env.buildPackage == 'true' }}
       run: |
         cd semantic_version_inator
         python -m build --wheel
@@ -106,14 +104,14 @@ jobs:
     #     echo "pkg_name=$pkg_name" >> $GITHUB_ENV
   
     # - name: Upload package as workflow artifact
-    #   if: ${{ env.buildPackage == 'true' }}
+    #   if: ${{ env.publishPackage == 'true' }}
     #   uses: actions/upload-artifact@v3
     #   with:
     #     name: ${{ env.pkg_name }}
     #     path: semantic_version_inator/dist/*.whl
 
     - name: Publish package to pypi
-      if: ${{ env.buildPackage == 'true' }}
+      if: ${{ env.publishPackage == 'true' }}
       uses: pypa/gh-action-pypi-publish@release/v1.5
       with:
         user: __token__

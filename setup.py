@@ -11,7 +11,7 @@ long_description = (this_directory / "README.md").read_text()
 #     requirements = req.read().splitlines()
 
 
-PKG_VERSION = "0.0.1"
+PKG_VERSION = "0.0.0"
 try:
     new_ver = os.environ["new_ver"]
     if new_ver:
