@@ -100,10 +100,10 @@ jobs:
       run: |
         cd semantic_version_inator
         python -m build --wheel
-        cd dist
-        pkg_name=$(ls *.whl)
-        echo "pkg_name: "$pkg_name
-        echo "pkg_name=$pkg_name" >> $GITHUB_ENV
+    #     cd dist
+    #     pkg_name=$(ls *.whl)
+    #     echo "pkg_name: "$pkg_name
+    #     echo "pkg_name=$pkg_name" >> $GITHUB_ENV
   
     # - name: Upload package as workflow artifact
     #   if: ${{ env.buildPackage == 'true' }}
