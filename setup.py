@@ -1,6 +1,11 @@
 """ packaging config """
 import os
+from pathlib import Path
 from setuptools import setup, find_packages
+
+
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
 
 # with open("requirements.txt", encoding="utf-8") as req:
 #     requirements = req.read().splitlines()
@@ -19,7 +24,8 @@ except KeyError:
 setup(
     name = "semantic_version_inator",
     description = "Utility to aid in incrementing the semantic version of a Python package in an automated build",
-    long_description = "Utility to aid in incrementing the semantic version of a Python package in an automated build",
+    long_description = long_description,
+    long_description_content_type='text/markdown',
     version = PKG_VERSION,
     python_requires = ">=3.10",
     install_requires = "",
