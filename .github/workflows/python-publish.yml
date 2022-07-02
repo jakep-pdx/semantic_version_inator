@@ -87,9 +87,9 @@ jobs:
         if [ "$file_name" != "" ]
           then
           pip install $file_name
-          next_ver=$(get_next_ver_file_name $file_name ${{ env.versionType }})
-          echo "next_ver: "$next_ver
-          echo "next_ver=$next_ver" >> $GITHUB_ENV
+          new_ver=$(get_next_ver_file_name $file_name ${{ env.versionType }})
+          echo "new_ver: "$new_ver
+          echo "new_ver=$new_ver" >> $GITHUB_ENV
         else
           echo "unable to get next version"
         fi
