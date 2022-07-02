@@ -21,6 +21,11 @@ on:
         - 'MINOR'
         - 'MAJOR'
 
+# TBD - possibly also create a tag with the version number to use as release, or possibly move 
+# publish to pypi step as separate workflow which triggers off release or ???
+# 
+# from example github python publish workflow:
+
 #   release:
 #     types: [published]
 
@@ -81,6 +86,7 @@ jobs:
         coverage report --fail-under=80 --omit="setup.py,*/__init__.py,*/tests/*"
 
     - name: Get next version
+      continue-on-error: true
       run: |
         pip download semantic_version_inator
         file_name=$(ls semantic_version_inator*.whl)
@@ -98,17 +104,6 @@ jobs:
       run: |
         cd semantic_version_inator
         python -m build --wheel
-    #     cd dist
-    #     pkg_name=$(ls *.whl)
-    #     echo "pkg_name: "$pkg_name
-    #     echo "pkg_name=$pkg_name" >> $GITHUB_ENV
-  
-    # - name: Upload package as workflow artifact
-    #   if: ${{ env.publishPackage == 'true' }}
-    #   uses: actions/upload-artifact@v3
-    #   with:
-    #     name: ${{ env.pkg_name }}
-    #     path: semantic_version_inator/dist/*.whl
 
     - name: Publish package to pypi
       if: ${{ env.publishPackage == 'true' }}
@@ -117,25 +112,3 @@ jobs:
         user: __token__
         password: ${{ secrets.PYPI_API_TOKEN }}
         packages_dir: semantic_version_inator/dist
-
-
-  # deploy:
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #   - uses: actions/checkout@v3
-  #   - name: Set up Python
-  #     uses: actions/setup-python@v3
-  #     with:
-  #       python-version: '3.x'
-  #   - name: Install dependencies
-  #     run: |
-  #       python -m pip install --upgrade pip
-  #       pip install build
-  #   - name: Build package
-  #     run: python -m build
-  #   - name: Publish package
-  #     uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
-  #     with:
-  #       user: __token__
-  #       password: ${{ secrets.PYPI_API_TOKEN }}
