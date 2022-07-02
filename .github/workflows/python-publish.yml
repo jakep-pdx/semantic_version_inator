@@ -97,6 +97,13 @@ jobs:
         name: ${{ env.pkg_name }}
         path: semantic_version_inator/dist/*.whl
 
+    - name: Publish package to pypi
+      if: ${{ env.buildPackage == 'true' }}
+      uses: pypa/gh-action-pypi-publish@release/v1.5
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_API_TOKEN }}
+
 
   # deploy:
   #   runs-on: ubuntu-latest
