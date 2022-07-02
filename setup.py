@@ -18,7 +18,8 @@ except KeyError:
 
 setup(
     name = "semantic_version_inator",
-    description = "Python packaging utility to generate semantic version in CI/CD workflow/pipeline",
+    description = "Utility to aid in incrementing the semantic version of a Python package in an automated build",
+    long_description = "Utility to aid in incrementing the semantic version of a Python package in an automated build",
     version = PKG_VERSION,
     python_requires = ">=3.10",
     install_requires = "",
