@@ -42,7 +42,6 @@ def get_version_given_existing_version(cur_ver, release_type):
         new_ver = str(major)+"."+str(minor)+"."+str(new_patch)
     else:
         raise ValueError("unknown release type, please use PATCH, MINOR or MAJOR")
-    print(new_ver)
     return new_ver
 
 
@@ -50,5 +49,4 @@ def get_next_version_given_file_name(file_name, release_type):
     """ get the current version from file name, then determine next version for release type """
     cur_ver = get_cur_version_from_file_name(file_name)
     new_ver = get_version_given_existing_version(cur_ver, release_type)
-    print(new_ver)
     return new_ver
