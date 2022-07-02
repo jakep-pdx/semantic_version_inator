@@ -17,7 +17,6 @@ def get_next_ver_file_name(): #pragma: no cover
 
     ver = next_semantic_version.get_next_version_given_file_name(sys.argv[1], sys.argv[2])
     print(ver)
-    return ver
 
 
 def get_next_ver(): #pragma: no cover
@@ -32,4 +31,3 @@ def get_next_ver(): #pragma: no cover
 
     ver = next_semantic_version.get_version_given_existing_version(sys.argv[1], sys.argv[2])
     print(ver)
-    return ver
