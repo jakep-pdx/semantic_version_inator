@@ -6,7 +6,6 @@ def get_cur_version_from_file_name(file_name):
     parse and return semantic version from python package file name, or 'None' type if error
     expected format surrounds semantic version with dashes, i.e:  pkg_name-0.0.0-py3-none-any.whl
     """
-    print("file name provided:", file_name)
     cur_ver = None
     try:
         file_name_split = file_name.rsplit("-")
@@ -18,8 +17,6 @@ def get_cur_version_from_file_name(file_name):
 
 def get_version_given_existing_version(cur_ver, release_type):
     """ return the next semantic version based on current version and release type """
-    print("current version provided:", cur_ver)
-    print("release type provided:", release_type)
     major = None
     minor = None
     patch = None
@@ -45,7 +42,7 @@ def get_version_given_existing_version(cur_ver, release_type):
         new_ver = str(major)+"."+str(minor)+"."+str(new_patch)
     else:
         raise ValueError("unknown release type, please use PATCH, MINOR or MAJOR")
-    print("new version:", new_ver)
+    print(new_ver)
     return new_ver
 
 
@@ -53,4 +50,5 @@ def get_next_version_given_file_name(file_name, release_type):
     """ get the current version from file name, then determine next version for release type """
     cur_ver = get_cur_version_from_file_name(file_name)
     new_ver = get_version_given_existing_version(cur_ver, release_type)
+    print(new_ver)
     return new_ver
